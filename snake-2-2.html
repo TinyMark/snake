@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #src {
+            width: 1000px;
+            height: 500px;
+            border: 20px solid #000;
+            position: relative;
+        }
+
+        .snakeBlock {
+            width: 20px;
+            height: 20px;
+            background-color: #333;
+            position: absolute;
+        }
+
+        .theBeen {
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            position: absolute;
+        }
+
+        #start {
+            width: 210px;
+            height: 80px;
+            border: 4px solid #000;
+            position: absolute;
+            top: 60%;
+            right: 5%;
+        }
+
+        #snakeHead {
+            background-color: #000;
+        }
+
+        #box {
+            width: 200px;
+            height: 300px;
+            border: 5px solid #000;
+            position: absolute;
+            top: 10%;
+            right: 5%;
+            text-align: center;
+            font-size: larger;
+        }
+
+        #level {
+            border-bottom: 2px solid;
+        }
+
+        #level p {
+            margin: 30px;
+        }
+
+        #score p {
+            margin: 30px;
+        }
+    </style>
+</head>
+<body>
+<div id="src">
+    <div id="snake" style="position: relative;">
+        <div class="snakeBlock" id="snakeHead"></div>
+        <div class="snakeBlock"></div>
+        <div class="snakeBlock"></div>
+    </div>
+</div>
+<div id="box">
+    <div id="level">
+        <p id="levelNum">LEVEL 1</p>
+    </div>
+    <div id="score">
+        <p>SCORE</p>
+
+        <p id="scoreNum"></p>
+
+        <p id="show"></p>
+    </div>
+</div>
+<button id="start">START!</button>
+<script>
+    //    获取id
+    var src = document.getElementById("src");
+    var snake = document.getElementById("snake");
+    var snakeHead = document.getElementById("snakeHead");
+    var scoreNum = document.getElementById("scoreNum");
+    var levelNum = document.getElementById("levelNum");
+
+
+    // 获得 点 坐标的函数
+    function getX(tag) {
+        var x = tag.offsetLeft;
+        return x;
+    }
+    function getY(tag) {
+        var y = tag.offsetTop;
+        return y;
+    }
+
+
+    //    随机生成豆子
+    //        豆子的数组
+    var beenArr = [];
+    //        生成豆子的函数
+    var getW = document.getElementById("src").clientWidth - 20;
+    var getH = document.getElementById("src").clientHeight - 20;
+    function newBeen() {
+//        console.log(getW, getH);
+        var been = document.createElement("div");
+        src.appendChild(been);
+        been.className = "theBeen";
+
+        been.style.left = Math.floor(Math.random() * getW / 20) * 20 + "px";
+        been.style.top = Math.floor(Math.random() * getH / 20) * 20 + "px";
+
+        beenArr = [getX(been), getY(been)];
+
+    }
+    newBeen();
+    console.log(beenArr);
+
+
+    //设置 snake 出生位置
+    snakeHead.style.top = "300px";
+    snakeHead.style.left = "500px";
+//    console.log(getX(snakeHead), getY(snakeHead));
+    //    根据snakeHead生成原始body:fB
+    for (var i = 1; i < snake.children.length; i++) {
+        snake.children[i].style.top = getY(snakeHead) + 20 * i + "px";
+        snake.children[i].style.left = getX(snakeHead) + "px";
+    }
+    //    刷新保存snakeBodys[];
+    var snakeBodys = [];
+    function refreshSnakeBody() {
+        for (var i = 0; i < snake.children.length; i++) {
+            snakeBodys[i] = [getX(snake.children[i]), getY(snake.children[i])];
+        }
+    }
+    refreshSnakeBody();
+//    console.log(snakeBodys);
+
+    //    根据上次body生成新body
+    function newBody() {
+        for (var i = 0; i < snakeBodys.length - 1; i++) {
+            snake.children[i + 1].style.left = snakeBodys[i][0] + "px";
+            snake.children[i + 1].style.top = snakeBodys[i][1] + "px";
+        }
+//        刷新保存snakeBodys[] 坐标
+        refreshSnakeBody();
+    }
+
+    //    自动移动
+    function autoMove() {
+//        刷新snake
+        refreshSnakeBody();
+        //        如果前后项Y相等 则判断 前后X项 谁大
+        if (snakeBodys[0][1] == snakeBodys[1][1]) {
+            if (snakeBodys[0][0] > snakeBodys[1][0]) {
+                snakeHead.style.left = getX(snakeHead) + 20 + "px";
+                newBody();
+            } else {
+                snakeHead.style.left = getX(snakeHead) - 20 + "px";
+                newBody();
+            }
+            //        如果前后项X相等 则判断 前后Y项 谁大
+        } else if (snakeBodys[0][0] == snakeBodys[1][0]) {
+            if (snakeBodys[0][1] > snakeBodys[1][1]) {
+                snakeHead.style.top = getY(snakeHead) + 20 + "px";
+                newBody();
+            } else {
+                snakeHead.style.top = getY(snakeHead) - 20 + "px";
+                newBody();
+            }
+        }
+        refreshSnakeBody();
+    }
+
+
+    //    按键方案
+    window.onkeydown = function () {
+        var keycode = window.event.keyCode;
+//        console.log(keycode);
+        switch (keycode) {
+            case 32 :
+                start.click();
+                break;
+            case 37 :
+                if (snakeBodys[0][1] - snakeBodys[1][1] == 0) {
+                    break;
+                } else {
+                    snakeHead.style.left = getX(snakeHead) - 20 + "px";
+                    newBody();
+                }
+                break;
+            case 38 :
+                if (snakeBodys[0][0] - snakeBodys[1][0] == 0) {
+                    break;
+                } else {
+                    snakeHead.style.top = getY(snakeHead) - 20 + "px";
+                    newBody();
+                }
+                break;
+            case 39 :
+                if (snakeBodys[0][1] - snakeBodys[1][1] == 0) {
+                    break;
+                } else {
+                    snakeHead.style.left = getX(snakeHead) + 20 + "px";
+                    newBody();
+                }
+                break;
+            case 40 :
+                if (snakeBodys[0][0] - snakeBodys[1][0] == 0) {
+                    break;
+                } else {
+                    snakeHead.style.top = getY(snakeHead) + 20 + "px";
+                    newBody();
+                }
+                break;
+        }
+        getBeen();
+        out();
+    };
+
+    function noBeenInBody() {
+        refreshSnakeBody();
+        for (var i = 0; i < snakeBodys.length; i++) {
+            if (beenArr[0] == snakeBodys[i][0] && beenArr[1] == snakeBodys[i][1]) {
+//            删除豆子
+                src.removeChild(src.lastElementChild);
+//            刷新豆子
+                newBeen();
+            }
+        }
+    }
+
+    var score = 1;
+    var count = 1;
+    var lvl = 160;
+    scoreNum.innerHTML = "000";
+    //吃豆子函数
+    function getBeen() {
+        refreshSnakeBody();
+        if (snakeBodys[0][0] == beenArr[0] && snakeBodys[0][1] == beenArr[1]) {
+//            删除豆子
+            src.removeChild(src.lastElementChild);
+//            刷新豆子
+            newBeen();
+            noBeenInBody();
+//          增加身体
+            var nb = document.createElement("div");
+            snake.appendChild(nb);
+            nb.className = "snakeBlock";
+            nb.style.left = snake.lastElementChild.previousElementSibling.offsetLeft + "px";
+            nb.style.top = snake.lastElementChild.previousElementSibling.offsetTop + "px";
+            refreshSnakeBody();
+
+//            得分
+            console.log("get!");
+            scoreNum.innerHTML = 100 * score++;
+            count++;
+            if (count % 4 == 0) {
+                if(lvl > 50){
+                    lvl = lvl - 20;
+                    start.click();
+                    start.click();
+                }
+                levelNum.innerHTML = "LEVEL "+ count/4;
+                console.log(lvl);
+                return lvl;
+            }
+        }
+    }
+
+
+    //    out函数
+    function out() {
+        if (getY(snakeHead) < 0 || getX(snakeHead) < 0 || getY(snakeHead) > 480 || getX(snakeHead) > 980) {
+            clearInterval(timer);
+            alert("Game Over");
+//            snakeHead.parentNode.removeChild(snakeHead);
+        }
+        for (var i = 1; i < snakeBodys.length; i++) {
+            if (snakeBodys[i][0] == getX(snakeHead) && snakeBodys[i][1] == getY(snakeHead)) {
+                clearInterval(timer);
+                alert("Game Over");
+            }
+        }
+    }
+
+
+    var start = document.getElementById("start");
+    var flag = true;
+    var timer = null;
+    start.onclick = function () {
+        if (flag) {
+            timer = setInterval(function () {
+                autoMove();
+                getBeen();
+                out();
+            }, lvl);
+            start.innerHTML = "< ---- PAUSE ---- >";
+            start.style.backgroundColor = "#ca6924";
+            flag = false;
+        } else {
+            start.innerHTML = "----> CONTINUE <----";
+            start.style.backgroundColor = "#7fecad";
+            clearInterval(timer);
+            flag = true;
+        }
+    }
+
+</script>
+</body>
+</html>

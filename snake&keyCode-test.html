@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #src {
+            width: 1000px;
+            height: 500px;
+            border: 5px solid #000;
+            position: relative;
+        }
+
+        .snakeBlock {
+            width: 10px;
+            height: 10px;
+            background-color: #000;
+            position: absolute;
+        }
+
+        .theBeen {
+            width: 10px;
+            height: 10px;
+            background-color: #000;
+            position: absolute;
+        }
+        #start{
+            width: 100px;
+            height: 50px;
+            position: absolute;
+            top: 50%;
+            right: 16%;
+        }
+    </style>
+</head>
+<body>
+<div id="src">
+    <div id="snake" style="position: relative;">
+        <div class="snakeBlock" id="snakeHead"></div>
+        <div class="snakeBlock"></div>
+        <div class="snakeBlock"></div>
+    </div>
+</div>
+<button id="start">START!</button>
+
+<script>
+    var head = document.getElementById("snakeHead");
+    var snake = document.getElementById("snake");
+
+    var start = document.getElementById("start");
+    start.onclick = function (){
+        //   判断跳出条件
+        var timer = null;
+        timer = setInterval(function () {
+            autoMove();
+            rfSB();
+//            吃豆子
+            if (Math.abs(snakeBodys[0][0] - beenArr[0]) < 10 && Math.abs(snakeBodys[0][1] - beenArr[1]) < 10) {
+                src.removeChild(src.lastElementChild);
+                var newBo = document.createElement("div");
+                snake.appendChild(newBo);
+                newBo.className = "snakeBlock";
+                rfSB();
+                newBeen();
+                console.log("get!");
+            }
+//            撞墙
+            if (getY(head) < 0 || getX(head) < 0 || getY(head) > 490 || getX(head) > 990) {
+                clearInterval(timer);
+                alert("Game Over");
+                head.parentNode.removeChild(head);
+            }
+        }, 500)
+    }
+
+
+    //设置出生位置
+    head.style.top = "300px";
+    head.style.left = "500px";
+    //    console.log(getX(head), getY(head));
+    //    根据head生成原始body FB
+    function fB() {
+        for (var i = 0; i < snake.children.length; i++) {
+            snake.children[i].style.top = getY(head) + 10 * i + "px";
+            snake.children[i].style.left = getX(head) + 0 * i + "px";
+        }
+    }
+    fB();
+    //    刷新保存snakeBodys[];
+    var snakeBodys = [];
+    function rfSB() {
+        for (var i = 0; i < snake.children.length; i++) {
+            snakeBodys[i] = [getX(snake.children[i]), getY(snake.children[i])];
+        }
+    }
+    rfSB();
+
+    //    根据上次body生成新body
+    function newBody() {
+        for (var i = 0; i < snakeBodys.length - 1; i++) {
+            snake.children[i + 1].style.left = snakeBodys[i][0] + "px";
+            snake.children[i + 1].style.top = snakeBodys[i][1] + "px";
+        }
+        rfSB();
+    }
+
+    //获取XY坐标 的函数
+    function getX(tag) {
+        var x = tag.offsetLeft;
+        return x;
+    }
+    function getY(tag) {
+        var y = tag.offsetTop;
+        return y;
+    }
+    //    生成新豆子
+    var beenArr = [];
+    var src = document.getElementById("src");
+
+    function newBeen() {
+        var getW = document.getElementById("src").offsetWidth;
+        var getH = document.getElementById("src").offsetHeight;
+
+        var been = document.createElement("div");
+        src.appendChild(been);
+        been.className = "theBeen";
+
+        been.style.left = Math.floor(Math.random() * (getW - 20) / 10) * 10 + "px";
+        been.style.top = Math.floor(Math.random() * (getH - 20) / 10) * 10 + "px";
+
+        beenArr = [been.offsetLeft, been.offsetTop];
+    }
+    newBeen();
+    console.log(beenArr);
+
+    //    按键方案
+    window.onkeydown = function () {
+        var keycode = window.event.keyCode;
+        console.log(keycode);
+        switch (keycode) {
+            case 32 :
+                start.click();
+                break;
+            case 37 :
+                if (snakeBodys[0][1] - snakeBodys[1][1] == 0) {
+                    break;
+                } else {
+                    head.style.left = getX(head) - 10 + "px";
+                    newBody();
+                }
+                break;
+            case 38 :
+                if (snakeBodys[0][0] - snakeBodys[1][0] == 0) {
+                    break;
+                } else {
+                    head.style.top = getY(head) - 10 + "px";
+                    newBody();
+                }
+                break;
+            case 39 :
+                if (snakeBodys[0][1] - snakeBodys[1][1] == 0) {
+                    break;
+                } else {
+                    head.style.left = getX(head) + 10 + "px";
+                    newBody();
+                }
+                break;
+            case 40 :
+                if (snakeBodys[0][0] - snakeBodys[1][0] == 0) {
+                    break;
+                } else {
+                    head.style.top = getY(head) + 10 + "px";
+                    newBody();
+                }
+                break;
+        }
+        rfSB();
+    };
+
+//    //    自动移动
+//    function autoMove() {
+////        刷新snake
+//        rfSB();
+//        //        如果前后项Y相等 则判断 前后X项 谁大
+//        if (snakeBodys[0][1] == snakeBodys[1][1]) {
+//            if (snakeBodys[0][0] > snakeBodys[1][0]) {
+//                head.style.left = getX(head) + 10 + "px";
+//                newBody();
+//            } else {
+//                head.style.left = getX(head) - 10 + "px";
+//                newBody();
+//            }
+//            //        如果前后项X相等 则判断 前后Y项 谁大
+//        } else if (snakeBodys[0][0] == snakeBodys[1][0]) {
+//            if (snakeBodys[0][1] > snakeBodys[1][1]) {
+//                head.style.top = getY(head) + 10 + "px";
+//                newBody();
+//            } else {
+//                head.style.top = getY(head) - 10 + "px";
+//                newBody();
+//            }
+//        }
+//        rfSB();
+//    }
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    #src {
+        width: 1000px;
+        height: 500px;
+        border: 5px solid #000;
+        position: relative;
+    }
+
+    .theBeen{
+        width: 10px;
+        height: 10px;
+        background-color: #000;
+        position: absolute;
+    }
+</style>
+<body>
+<div id="src">
+</div>
+<script>
+    function newBeen() {
+        var getW = document.getElementById("src").offsetWidth;
+        var getH = document.getElementById("src").offsetHeight;
+
+        var been = document.createElement("div");
+        var src = document.getElementById("src");
+        src.appendChild(been);
+        been.className = "theBeen";
+
+        been.style.left = Math.floor(Math.random() * (getW - 20) / 10) * 10 + "px";
+        been.style.top = Math.floor(Math.random() * (getH - 20) / 10) * 10 + "px";
+
+        console.log(been.offsetHeight, been.offsetLeft);
+    }
+    newBeen();
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>
